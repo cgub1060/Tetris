@@ -35,8 +35,10 @@ int playField[FIELD_HEIGHT][FIELD_WIDTH] = {
 	{ 2,2,2,2,2,2,2,2,2,2,2,2 }
 };
 
+
+//++++++++++++++++++++++++++++++++++ïœçX+++++++++++++++++++++++++++++++++++++
 //**********************************í«â¡*************************************
-int nextBlockField[nextBlockFieldSize][nextBlockFieldSize] = {
+int nextBlockField[SUB_FIELD_HEIGHT][SUB_FIELD_WIDTH] = {
 	{ 0,2,2,2,2,0 },
 	{ 1,0,0,0,0,1 },
 	{ 1,0,0,0,0,1 },
@@ -46,6 +48,16 @@ int nextBlockField[nextBlockFieldSize][nextBlockFieldSize] = {
 };
 //***************************************************************************
 
+//++++++++++++++++++++++++++++++++++í«â¡+++++++++++++++++++++++++++++++++++++
+int stockBlockField[SUB_FIELD_HEIGHT][SUB_FIELD_WIDTH] = {
+	{ 0,2,2,2,2,0 },
+	{ 1,0,0,0,0,1 },
+	{ 1,0,0,0,0,1 },
+	{ 1,0,0,0,0,1 },
+	{ 1,0,0,0,0,1 },
+	{ 0,2,2,2,2,0 }
+};
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 int blocks[BLOCK_KINDS][BLOCK_HEIGHT][BLOCK_WIDTH] = {
 	{
@@ -98,6 +110,10 @@ int inControlBlock[BLOCK_HEIGHT][BLOCK_WIDTH];
 int nextControlBlock[BLOCK_HEIGHT][BLOCK_WIDTH];
 //***************************************************************************
 
+//++++++++++++++++++++++++++++++++++í«â¡+++++++++++++++++++++++++++++++++++++
+int stockControlBlock[BLOCK_HEIGHT][BLOCK_WIDTH];
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 int currentBlockPositionX = 0;
 int currentBlockPositionY = 0;
 
@@ -115,7 +131,7 @@ int main()
 	initializeColor();
 	srand((unsigned)time(NULL));
 	generateBlock(FALL_BASE_X, FALL_BASE_Y);
-	setNextBlock(nextControlBlock);
+	setNextField(nextControlBlock);
 	gameLoop();
 	endwin();
 

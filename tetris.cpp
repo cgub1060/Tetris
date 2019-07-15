@@ -45,33 +45,33 @@ void drawField() {
 void drawNextBlockField() {
 	int h, w;
 
-	mvprintw(nextBlockPositionY - 1, nextBlockPositionX, "nextBlock");
-	for (h = 0; h < nextBlockFieldSize; h++) {
-		for (w = 0; w < nextBlockFieldSize; w++) {
+	mvprintw(NEXT_BLOCK_POSITION_Y - 1, NEXT_BLOCK_POSITION_X, "nextBlock");
+	for (h = 0; h < SUB_FIELD_HEIGHT; h++) {
+		for (w = 0; w < SUB_FIELD_WIDTH; w++) {
 			if (nextBlockField[h][w] == WALL) {
 				color_set(BOUNDARY, NULL);
-				mvprintw(nextBlockPositionY + h, nextBlockPositionX + w, "|");
+				mvprintw(NEXT_BLOCK_POSITION_Y + h, NEXT_BLOCK_POSITION_X + w, "|");
 			}
 			if (nextBlockField[h][w] == FLOOR) {
 				color_set(BOUNDARY, NULL);
-				mvprintw(nextBlockPositionY + h, nextBlockPositionX + w, "-");
+				mvprintw(NEXT_BLOCK_POSITION_Y + h, NEXT_BLOCK_POSITION_X + w, "-");
 			}
 			if (nextBlockField[h][w] == CONTROL) {
 
 				color_set(BLOCK_COLOR1, NULL);
-				mvprintw(nextBlockPositionY + h, nextBlockPositionX + w, "@");
+				mvprintw(NEXT_BLOCK_POSITION_Y + h, NEXT_BLOCK_POSITION_X + w, "@");
 
 			}
 			if (nextBlockField[h][w] == FIXED) {
 				color_set(BLOCK_COLOR3, NULL);
-				mvprintw(nextBlockPositionY + h, nextBlockPositionX + w, "@");
+				mvprintw(NEXT_BLOCK_POSITION_Y + h, NEXT_BLOCK_POSITION_X + w, "@");
 
 
 			}
 			if (nextBlockField[h][w] == FREE) {
 				color_set(BOUNDARY, NULL);
 
-				mvprintw(nextBlockPositionY + h, nextBlockPositionX + w, " ");
+				mvprintw(NEXT_BLOCK_POSITION_Y + h, NEXT_BLOCK_POSITION_X + w, " ");
 			}
 		}
 	}
@@ -79,7 +79,45 @@ void drawNextBlockField() {
 //***************************************************************************
 
 
-void setBlock(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
+//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
+void drawStockBlockField() {
+	int h, w;
+
+	mvprintw(STOCK_BLOCK_POSITION_Y - 1, STOCK_BLOCK_POSITION_X, "stockBlock");
+	for (h = 0; h < SUB_FIELD_HEIGHT; h++) {
+		for (w = 0; w < SUB_FIELD_WIDTH; w++) {
+			if (stockBlockField[h][w] == WALL) {
+				color_set(BOUNDARY, NULL);
+				mvprintw(STOCK_BLOCK_POSITION_Y + h, STOCK_BLOCK_POSITION_X + w, "|");
+			}
+			if (stockBlockField[h][w] == FLOOR) {
+				color_set(BOUNDARY, NULL);
+				mvprintw(STOCK_BLOCK_POSITION_Y + h, STOCK_BLOCK_POSITION_X + w, "-");
+			}
+			if (stockBlockField[h][w] == CONTROL) {
+
+				color_set(BLOCK_COLOR1, NULL);
+				mvprintw(STOCK_BLOCK_POSITION_Y + h, STOCK_BLOCK_POSITION_X + w, "@");
+
+			}
+			if (stockBlockField[h][w] == FIXED) {
+				color_set(BLOCK_COLOR3, NULL);
+				mvprintw(STOCK_BLOCK_POSITION_Y + h, STOCK_BLOCK_POSITION_X + w, "@");
+
+
+			}
+			if (stockBlockField[h][w] == FREE) {
+				color_set(BOUNDARY, NULL);
+
+				mvprintw(STOCK_BLOCK_POSITION_Y + h, STOCK_BLOCK_POSITION_X + w, " ");
+			}
+		}
+	}
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+//++++++++++++++++++++++++++++++++名称変更+++++++++++++++++++++++++++++++++++
+void setField(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
 	for (int h = 0; h < BLOCK_HEIGHT; h++) {
 		for (int w = 0; w < BLOCK_WIDTH; w++) {
 			if (setBuf[h][w] == CONTROL) {
@@ -89,9 +127,8 @@ void setBlock(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
 	}
 }
 
-
 //**********************************追加*************************************
-void setNextBlock(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
+void setNextField(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
 	for (int h = 0; h < BLOCK_HEIGHT; h++) {
 		for (int w = 0; w < BLOCK_WIDTH; w++) {
 			if (setBuf[h][w] == CONTROL) {
@@ -103,8 +140,30 @@ void setNextBlock(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
 //***************************************************************************
 
 
+//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
+void setStockField(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
+	for (int h = 0; h < BLOCK_HEIGHT; h++) {
+		for (int w = 0; w < BLOCK_WIDTH; w++) {
+			if (setBuf[h][w] == CONTROL) {
+				stockBlockField[h + 1][w + 1] = setBuf[h][w];	//枠分を足している
+			}
+		}
+	}
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void unsetBlock(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
+//**********************************追加*************************************
+void unsetControlBlock(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
+	for (int h = 0; h < BLOCK_HEIGHT; h++) {
+		for (int w = 0; w < BLOCK_WIDTH; w++) {
+			inControlBlock[h][w] = FREE;
+		}
+	}
+}
+//***************************************************************************
+
+
+void unsetField(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
 	for (int h = 0; h < BLOCK_HEIGHT; h++) {
 		for (int w = 0; w < BLOCK_WIDTH; w++) {
 			if (setBuf[h][w] == CONTROL) {
@@ -115,7 +174,7 @@ void unsetBlock(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
 }
 
 //**********************************追加*************************************
-void unsetNextBlock(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
+void unsetNextField(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
 	for (int h = 0; h < BLOCK_HEIGHT; h++) {
 		for (int w = 0; w < BLOCK_WIDTH; w++) {
 			nextBlockField[h + 1][w + 1] = FREE;	//枠分を足している
@@ -123,6 +182,17 @@ void unsetNextBlock(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
 	}
 }
 //***************************************************************************
+
+//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
+void unsetStockField(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
+	for (int h = 0; h < BLOCK_HEIGHT; h++) {
+		for (int w = 0; w < BLOCK_WIDTH; w++) {
+			stockBlockField[h + 1][w + 1] = FREE;
+		}
+	}
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 int isCollision(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
 	for (int h = 0; h < BLOCK_HEIGHT; h++) {
@@ -182,6 +252,66 @@ void rotateBlock(int isClockwise) {
 	}
 }
 
+//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
+void stockBlock() {
+	bool firstStock = TRUE;
+	int tmpBlock[BLOCK_HEIGHT][BLOCK_WIDTH] = {
+		{ 0,0,0,0 },
+		{ 0,0,0,0 },
+		{ 0,0,0,0 },
+		{ 0,0,0,0 }
+	};
+
+	//ストックが空かどうかの判別
+	//現在のストックブロックを保持
+	for (int h = 0; h < BLOCK_HEIGHT; h++) {
+		for (int w = 0; w < BLOCK_WIDTH; w++) {
+			if (w >= 2 && stockControlBlock[h][w] == CONTROL) {
+				if (currentBlockPositionX >= FIELD_WIDTH-3) {
+					mvprintw(20, 20, "枠外にブロックがでるためストック不可");
+					return;
+				}
+			}
+			if (stockControlBlock[h][w] == CONTROL) {
+				tmpBlock[h][w] = stockControlBlock[h][w];
+				firstStock = FALSE;
+			}
+		}
+	}
+
+	//現在操作中のブロックをストック
+	setStockControlBlock(inControlBlock);
+
+	/*if ストックが空(初めてストックを行う)
+	* 現在操作中のブロックをストック
+	* 現在操作中のブロックを削除
+	* 次のブロックを削除
+	* ブロックを新たに生成
+	* 次のブロックを表示
+	*/
+
+	/*else ストックが空ではない(ストックを既に行っている)
+	* ストックを非表示に
+	* 現在操作中のブロックを
+	* stockControlBlockのkindからinControlBlockを生成
+	*/
+	if (firstStock) {
+		setStockField(inControlBlock);
+		unsetControlBlock(inControlBlock);
+		unsetNextField(nextControlBlock);
+		generateBlock(FALL_BASE_X, FALL_BASE_Y);
+		setNextField(nextControlBlock);
+	}
+	else {
+		unsetStockField(stockControlBlock);		
+		setStockField(inControlBlock);
+		unsetControlBlock(inControlBlock);
+		setControlBlock(tmpBlock);
+	}
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 void playerOperate(int ch) {
 	switch (ch) {
 	case KEY_RIGHT:
@@ -199,11 +329,29 @@ void playerOperate(int ch) {
 	case 'e':
 		rotateBlock(0);
 		break;
+
+//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
+	case 's':
+		stockBlock();
+		break;
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 	case 'q':
 		currentAppState = EXIT_WAIT;
 		break;
 	}
 }
+
+//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
+void setControlBlock(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
+	for (int h = 0; h < BLOCK_HEIGHT; h++) {
+		for (int w = 0; w < BLOCK_WIDTH; w++) {
+			inControlBlock[h][w] = setBuf[h][w];
+		}
+	}
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 void setNewControlBlock(int kind) {
 	assert(0 <= kind && kind < BLOCK_KINDS);
@@ -226,6 +374,18 @@ void setNextControlBlock(int kind) {
 }
 //***************************************************************************
 
+//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
+void setStockControlBlock(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
+	for (int h = 0; h < BLOCK_HEIGHT; h++) {
+		for (int w = 0; w < BLOCK_WIDTH; w++) {
+			stockControlBlock[h][w] = setBuf[h][w];
+		}
+	}
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
 void generateBlock(int x, int y) {
 	currentBlockPositionX = x;
 	currentBlockPositionY = y;
@@ -245,7 +405,7 @@ void generateBlock(int x, int y) {
 }
 
 void fixBlock() {
-	setBlock(currentBlockPositionX, currentBlockPositionY, inControlBlock);
+	setField(currentBlockPositionX, currentBlockPositionY, inControlBlock);
 
 	for (int h = 0; h < BLOCK_HEIGHT; h++) {
 		for (int w = 0; w < BLOCK_WIDTH; w++) {
@@ -303,6 +463,11 @@ void eraseCompleteLine() {
 void showGuide() {
 	mvprintw(23, 0, "e: 時計回り");
 	mvprintw(23, 14, "w: 反時計回り");
+
+//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
+	mvprintw(23, 28, "s: ストック");
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 	mvprintw(24, 0, "←: 左に移動");
 	mvprintw(24, 14, "→: 右に移動");
 	mvprintw(24, 28, "↓: 下に移動");
@@ -332,11 +497,12 @@ void showGameOverScreen() {
 
 void gameLoop() {
 	int ch = 0;
+	
 	while (currentAppState == RUNNING) {
 		clock_t baseTime = time(NULL);
 
 		while (1) {
-			setBlock(currentBlockPositionX, currentBlockPositionY, inControlBlock);
+			setField(currentBlockPositionX, currentBlockPositionY, inControlBlock);
 
 			drawField();
 
@@ -345,9 +511,13 @@ void gameLoop() {
 			drawNextBlockField();
 //***************************************************************************
 
+//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
+			drawStockBlockField();
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 			ch = getch();
 
-			unsetBlock(currentBlockPositionX, currentBlockPositionY, inControlBlock);
+			unsetField(currentBlockPositionX, currentBlockPositionY, inControlBlock);
 
 			playerOperate(ch);
 
@@ -364,12 +534,10 @@ void gameLoop() {
 			fixBlock();
 			eraseCompleteLine();
 			generateBlock(FALL_BASE_X, FALL_BASE_Y);
-
 //**********************************追加*************************************
-			unsetNextBlock(nextControlBlock);
-			setNextBlock(nextControlBlock);
+			unsetNextField(nextControlBlock);
+			setNextField(nextControlBlock);
 //***************************************************************************
-
 			if (isCollision(FALL_BASE_X, FALL_BASE_Y, inControlBlock)) {
 				currentAppState = GAME_OVER;
 			}

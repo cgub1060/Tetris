@@ -5,8 +5,11 @@
 #define BLOCK_HEIGHT 4
 #define BLOCK_WIDTH 4
 
+
+//++++++++++++++++++++++++++++++++++•ÏX+++++++++++++++++++++++++++++++++++++
 //**********************************’Ç‰Á*************************************
-#define nextBlockFieldSize 6
+#define SUB_FIELD_HEIGHT 6
+#define SUB_FIELD_WIDTH 6
 //***************************************************************************
 
 #define BLOCK_KINDS 7
@@ -16,9 +19,15 @@
 #define FALL_TIME 1.0
 //**********************************’Ç‰Á*************************************
 //FIELD_WIDTH + 1
-#define nextBlockPositionX 13
-#define nextBlockPositionY 5
+#define NEXT_BLOCK_POSITION_X 13
+#define NEXT_BLOCK_POSITION_Y 5
 //***************************************************************************
+
+//++++++++++++++++++++++++++++++++++’Ç‰Á+++++++++++++++++++++++++++++++++++++
+#define STOCK_BLOCK_POSITION_X 13
+#define STOCK_BLOCK_POSITION_Y 13
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 enum color {
 	BOUNDARY, 
@@ -38,9 +47,14 @@ enum blockType {
 };
 extern int playField[FIELD_HEIGHT][FIELD_WIDTH];
 
+//++++++++++++++++++++++++++++++++++•ÏX+++++++++++++++++++++++++++++++++++++
 //**********************************’Ç‰Á*************************************
-extern int nextBlockField[BLOCK_HEIGHT+2][BLOCK_WIDTH+2];
+extern int nextBlockField[SUB_FIELD_HEIGHT][SUB_FIELD_WIDTH];
 //***************************************************************************
+
+//++++++++++++++++++++++++++++++++++’Ç‰Á+++++++++++++++++++++++++++++++++++++
+extern int stockBlockField[SUB_FIELD_HEIGHT][SUB_FIELD_WIDTH];
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 extern int blocks[BLOCK_KINDS][BLOCK_HEIGHT][BLOCK_WIDTH];
 extern int inControlBlock[BLOCK_HEIGHT][BLOCK_WIDTH];
@@ -48,6 +62,10 @@ extern int inControlBlock[BLOCK_HEIGHT][BLOCK_WIDTH];
 //**********************************’Ç‰Á*************************************
 extern int nextControlBlock[BLOCK_HEIGHT][BLOCK_WIDTH];
 //***************************************************************************
+
+//++++++++++++++++++++++++++++++++++’Ç‰Á+++++++++++++++++++++++++++++++++++++
+extern int stockControlBlock[BLOCK_HEIGHT][BLOCK_WIDTH];
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 extern int currentBlockPositionX;
 extern int currentBlockPositionY;
@@ -62,16 +80,26 @@ enum appState {
 extern int currentAppState;
 
 void drawField();
-void setBlock(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]);
+void setField(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]);
+
+//++++++++++++++++++++++++++++++++++’Ç‰Á+++++++++++++++++++++++++++++++++++++
+void setControlBlock(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]);
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //**********************************’Ç‰Á*************************************
-void setNextBlock(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]);
+void setNextField(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]);
 //***************************************************************************
-void unsetBlock(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]);
+
+void unsetField(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]);
 
 //**********************************’Ç‰Á*************************************
-void unsetNextBlock(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]);
+void unsetNextField(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]);
 //***************************************************************************
+
+//++++++++++++++++++++++++++++++++++’Ç‰Á+++++++++++++++++++++++++++++++++++++
+void setStockControlBlock(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]);
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 int isCollision(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]);
 int moveBlock(int baseX, int baseY);
 void rotateBlock(int isClockwise);
