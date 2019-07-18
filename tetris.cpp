@@ -5,8 +5,31 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <Windows.h>
 #include "tetris.h"
 
+void getCurrentDirectory(char *currentDirectory) {
+	GetCurrentDirectory(CHARBUFF, currentDirectory);
+}
+void getData() {
+	char currentDirectory[CHARBUFF];
+	getCurrentDirectory(currentDirectory);
+	char settingFile[CHARBUFF];
+	sprintf_s(settingFile, "%s\\setting.ini", currentDirectory);
+
+	char section[CHARBUFF];
+	sprintf_s(section, "define1");
+	char keyWord[CHARBUFF];
+	sprintf_s(keyWord, "currentBlockPositionX");
+	currentBlockPositionX = GetPrivateProfileInt(section, keyWord, -1, settingFile);
+	sprintf_s(keyWord, "currentBlockPositionY");
+	currentBlockPositionY = GetPrivateProfileInt(section, keyWord, -1, settingFile);
+	sprintf_s(keyWord, "gameScore");
+	tetris.SCORE = GetPrivateProfileInt(section, keyWord, -1, settingFile);
+	sprintf_s(keyWord, "gameLevel");
+	tetris.LEVEL = GetPrivateProfileInt(section, keyWord, -1, settingFile);
+
+}
 void drawField() {
 	int h, w;
 	for (h = 0; h < FIELD_HEIGHT; h++) {
@@ -25,7 +48,7 @@ void drawField() {
 					mvprintw(h, w, "@");
 				
 			}
-			if (playField[h][w] == FIXED) {
+			if (playField[h][w] == FIX) {
 				color_set(BLOCK_COLOR3, NULL);
 					mvprintw(h, w, "@");
 			
@@ -39,85 +62,7 @@ void drawField() {
 		}
 	}
 }
-
-
-//**********************************追加*************************************
-void drawNextBlockField() {
-	int h, w;
-
-	mvprintw(NEXT_BLOCK_POSITION_Y - 1, NEXT_BLOCK_POSITION_X, "nextBlock");
-	for (h = 0; h < SUB_FIELD_HEIGHT; h++) {
-		for (w = 0; w < SUB_FIELD_WIDTH; w++) {
-			if (nextBlockField[h][w] == WALL) {
-				color_set(BOUNDARY, NULL);
-				mvprintw(NEXT_BLOCK_POSITION_Y + h, NEXT_BLOCK_POSITION_X + w, "|");
-			}
-			if (nextBlockField[h][w] == FLOOR) {
-				color_set(BOUNDARY, NULL);
-				mvprintw(NEXT_BLOCK_POSITION_Y + h, NEXT_BLOCK_POSITION_X + w, "-");
-			}
-			if (nextBlockField[h][w] == CONTROL) {
-
-				color_set(BLOCK_COLOR1, NULL);
-				mvprintw(NEXT_BLOCK_POSITION_Y + h, NEXT_BLOCK_POSITION_X + w, "@");
-
-			}
-			if (nextBlockField[h][w] == FIXED) {
-				color_set(BLOCK_COLOR3, NULL);
-				mvprintw(NEXT_BLOCK_POSITION_Y + h, NEXT_BLOCK_POSITION_X + w, "@");
-
-
-			}
-			if (nextBlockField[h][w] == FREE) {
-				color_set(BOUNDARY, NULL);
-
-				mvprintw(NEXT_BLOCK_POSITION_Y + h, NEXT_BLOCK_POSITION_X + w, " ");
-			}
-		}
-	}
-}
-//***************************************************************************
-
-
-//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
-void drawStockBlockField() {
-	int h, w;
-
-	mvprintw(STOCK_BLOCK_POSITION_Y - 1, STOCK_BLOCK_POSITION_X, "stockBlock");
-	for (h = 0; h < SUB_FIELD_HEIGHT; h++) {
-		for (w = 0; w < SUB_FIELD_WIDTH; w++) {
-			if (stockBlockField[h][w] == WALL) {
-				color_set(BOUNDARY, NULL);
-				mvprintw(STOCK_BLOCK_POSITION_Y + h, STOCK_BLOCK_POSITION_X + w, "|");
-			}
-			if (stockBlockField[h][w] == FLOOR) {
-				color_set(BOUNDARY, NULL);
-				mvprintw(STOCK_BLOCK_POSITION_Y + h, STOCK_BLOCK_POSITION_X + w, "-");
-			}
-			if (stockBlockField[h][w] == CONTROL) {
-
-				color_set(BLOCK_COLOR1, NULL);
-				mvprintw(STOCK_BLOCK_POSITION_Y + h, STOCK_BLOCK_POSITION_X + w, "@");
-
-			}
-			if (stockBlockField[h][w] == FIXED) {
-				color_set(BLOCK_COLOR3, NULL);
-				mvprintw(STOCK_BLOCK_POSITION_Y + h, STOCK_BLOCK_POSITION_X + w, "@");
-
-
-			}
-			if (stockBlockField[h][w] == FREE) {
-				color_set(BOUNDARY, NULL);
-
-				mvprintw(STOCK_BLOCK_POSITION_Y + h, STOCK_BLOCK_POSITION_X + w, " ");
-			}
-		}
-	}
-}
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//++++++++++++++++++++++++++++++++名称変更+++++++++++++++++++++++++++++++++++
-void setField(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
+void setBlock(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
 	for (int h = 0; h < BLOCK_HEIGHT; h++) {
 		for (int w = 0; w < BLOCK_WIDTH; w++) {
 			if (setBuf[h][w] == CONTROL) {
@@ -127,43 +72,7 @@ void setField(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
 	}
 }
 
-//**********************************追加*************************************
-void setNextField(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
-	for (int h = 0; h < BLOCK_HEIGHT; h++) {
-		for (int w = 0; w < BLOCK_WIDTH; w++) {
-			if (setBuf[h][w] == CONTROL) {
-				nextBlockField[h + 1][w + 1] = setBuf[h][w];	//枠分を足している
-			}
-		}
-	}
-}
-//***************************************************************************
-
-
-//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
-void setStockField(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
-	for (int h = 0; h < BLOCK_HEIGHT; h++) {
-		for (int w = 0; w < BLOCK_WIDTH; w++) {
-			if (setBuf[h][w] == CONTROL) {
-				stockBlockField[h + 1][w + 1] = setBuf[h][w];	//枠分を足している
-			}
-		}
-	}
-}
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//**********************************追加*************************************
-void unsetControlBlock(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
-	for (int h = 0; h < BLOCK_HEIGHT; h++) {
-		for (int w = 0; w < BLOCK_WIDTH; w++) {
-			inControlBlock[h][w] = FREE;
-		}
-	}
-}
-//***************************************************************************
-
-
-void unsetField(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
+void unsetBlock(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
 	for (int h = 0; h < BLOCK_HEIGHT; h++) {
 		for (int w = 0; w < BLOCK_WIDTH; w++) {
 			if (setBuf[h][w] == CONTROL) {
@@ -172,27 +81,6 @@ void unsetField(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
 		}
 	}
 }
-
-//**********************************追加*************************************
-void unsetNextField(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
-	for (int h = 0; h < BLOCK_HEIGHT; h++) {
-		for (int w = 0; w < BLOCK_WIDTH; w++) {
-			nextBlockField[h + 1][w + 1] = FREE;	//枠分を足している
-		}
-	}
-}
-//***************************************************************************
-
-//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
-void unsetStockField(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
-	for (int h = 0; h < BLOCK_HEIGHT; h++) {
-		for (int w = 0; w < BLOCK_WIDTH; w++) {
-			stockBlockField[h + 1][w + 1] = FREE;
-		}
-	}
-}
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 
 int isCollision(int baseX, int baseY, int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
 	for (int h = 0; h < BLOCK_HEIGHT; h++) {
@@ -224,8 +112,6 @@ void rotateBlock(int isClockwise) {
 			for (int w = 0; w < BLOCK_WIDTH; w++) {
 				int pw = (BLOCK_HEIGHT - 1) - w;
 				int ph = h;
-				assert(0 <= pw && pw < BLOCK_WIDTH);
-				assert(0 <= ph && ph < BLOCK_HEIGHT);
 				buf[h][w] = inControlBlock[pw][ph];
 			}
 		}
@@ -235,8 +121,6 @@ void rotateBlock(int isClockwise) {
 			for (int w = 0; w < BLOCK_WIDTH; w++) {
 				int pw = w;
 				int ph = (BLOCK_WIDTH - 1) - h;
-				assert(0 <= pw && pw < BLOCK_WIDTH);
-				assert(0 <= ph && ph < BLOCK_HEIGHT);
 				buf[h][w] = inControlBlock[pw][ph];
 			}
 		}
@@ -252,67 +136,7 @@ void rotateBlock(int isClockwise) {
 	}
 }
 
-//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
-void stockBlock() {
-	bool firstStock = TRUE;
-	int tmpBlock[BLOCK_HEIGHT][BLOCK_WIDTH] = {
-		{ 0,0,0,0 },
-		{ 0,0,0,0 },
-		{ 0,0,0,0 },
-		{ 0,0,0,0 }
-	};
-
-	//ストックが空かどうかの判別
-	//現在のストックブロックを保持
-	for (int h = 0; h < BLOCK_HEIGHT; h++) {
-		for (int w = 0; w < BLOCK_WIDTH; w++) {
-			if (w >= 2 && stockControlBlock[h][w] == CONTROL) {
-				if (currentBlockPositionX >= FIELD_WIDTH-3) {
-					mvprintw(20, 20, "枠外にブロックがでるためストック不可");
-					return;
-				}
-			}
-			if (stockControlBlock[h][w] == CONTROL) {
-				tmpBlock[h][w] = stockControlBlock[h][w];
-				firstStock = FALSE;
-			}
-		}
-	}
-
-	//現在操作中のブロックをストック
-	setStockControlBlock(inControlBlock);
-
-	/*if ストックが空(初めてストックを行う)
-	* 現在操作中のブロックをストック
-	* 現在操作中のブロックを削除
-	* 次のブロックを削除
-	* ブロックを新たに生成
-	* 次のブロックを表示
-	*/
-
-	/*else ストックが空ではない(ストックを既に行っている)
-	* ストックを非表示に
-	* 現在操作中のブロックを
-	* stockControlBlockのkindからinControlBlockを生成
-	*/
-	if (firstStock) {
-		setStockField(inControlBlock);
-		unsetControlBlock(inControlBlock);
-		unsetNextField(nextControlBlock);
-		generateBlock(FALL_BASE_X, FALL_BASE_Y);
-		setNextField(nextControlBlock);
-	}
-	else {
-		unsetStockField(stockControlBlock);		
-		setStockField(inControlBlock);
-		unsetControlBlock(inControlBlock);
-		setControlBlock(tmpBlock);
-	}
-}
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-void playerOperate(int ch) {
+void play(int ch) {
 	switch (ch) {
 	case KEY_RIGHT:
 		moveBlock(currentBlockPositionX + 1, currentBlockPositionY);
@@ -329,32 +153,16 @@ void playerOperate(int ch) {
 	case 'e':
 		rotateBlock(0);
 		break;
-
-//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
 	case 's':
 		stockBlock();
 		break;
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-	case 'q':
+	case 'p':
 		currentAppState = EXIT_WAIT;
 		break;
 	}
 }
 
-//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
-void setControlBlock(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
-	for (int h = 0; h < BLOCK_HEIGHT; h++) {
-		for (int w = 0; w < BLOCK_WIDTH; w++) {
-			inControlBlock[h][w] = setBuf[h][w];
-		}
-	}
-}
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
 void setNewControlBlock(int kind) {
-	assert(0 <= kind && kind < BLOCK_KINDS);
 	for (int h = 0; h < BLOCK_HEIGHT; h++) {
 		for (int w = 0; w < BLOCK_WIDTH; w++) {
 			inControlBlock[h][w] = blocks[kind][h][w];
@@ -362,50 +170,23 @@ void setNewControlBlock(int kind) {
 	}
 }
 
-//**********************************追加*************************************
-void setNextControlBlock(int kind) {
-	assert(0 <= kind && kind < BLOCK_KINDS);
-
-	for (int h = 0; h < BLOCK_HEIGHT; h++) {
-		for (int w = 0; w < BLOCK_WIDTH; w++) {
-			nextControlBlock[h][w] = blocks[kind][h][w];
-		}
-	}
-}
-//***************************************************************************
-
-//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
-void setStockControlBlock(int setBuf[BLOCK_HEIGHT][BLOCK_WIDTH]) {
-	for (int h = 0; h < BLOCK_HEIGHT; h++) {
-		for (int w = 0; w < BLOCK_WIDTH; w++) {
-			stockControlBlock[h][w] = setBuf[h][w];
-		}
-	}
-}
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-
 void generateBlock(int x, int y) {
 	currentBlockPositionX = x;
 	currentBlockPositionY = y;
-
-	//	setNewControlBlock(rand() % BLOCK_KINDS);
-//**********************************追加*************************************
 	static int generateBlockNum = 10;
 	if (generateBlockNum == 10) {
 		generateBlockNum = rand() % BLOCK_KINDS;
+		//generateBlockNum = 0;
 	}
 	setNewControlBlock(generateBlockNum);
 	generateBlockNum = rand() % BLOCK_KINDS;
+	//generateBlockNum = 0;
 	setNextControlBlock(generateBlockNum);
-
-//***************************************************************************
 
 }
 
 void fixBlock() {
-	setField(currentBlockPositionX, currentBlockPositionY, inControlBlock);
+	setBlock(currentBlockPositionX, currentBlockPositionY, inControlBlock);
 
 	for (int h = 0; h < BLOCK_HEIGHT; h++) {
 		for (int w = 0; w < BLOCK_WIDTH; w++) {
@@ -414,10 +195,8 @@ void fixBlock() {
 
 			if ((0 < ph && ph < FIELD_HEIGHT - 1) &&
 				(0 < pw && pw < FIELD_WIDTH - 1)) {
-				assert(ph < FIELD_HEIGHT - 1);
-				assert(0 < pw && pw < FIELD_WIDTH - 1);
 				if (playField[currentBlockPositionY + h][currentBlockPositionX + w] == CONTROL) {
-					playField[currentBlockPositionY + h][currentBlockPositionX + w] = FIXED;
+					playField[currentBlockPositionY + h][currentBlockPositionX + w] = FIX;
 				}
 			}
 		}
@@ -426,7 +205,7 @@ void fixBlock() {
 
 int isCompleteLine(int line) {
 	for (int w = 0; w < FIELD_WIDTH; w++) {
-		if (playField[line][w] != FIXED && playField[line][w] != WALL) {
+		if (playField[line][w] != FIX && playField[line][w] != WALL) {
 			return 0;
 		}
 	}
@@ -435,7 +214,7 @@ int isCompleteLine(int line) {
 
 void eraseLine(int line) {
 	for (int w = 0; w < FIELD_WIDTH; w++) {
-		if (playField[line][w] == FIXED) {
+		if (playField[line][w] == FIX) {
 			playField[line][w] = FREE;
 		}
 	}
@@ -456,36 +235,36 @@ void eraseCompleteLine() {
 			eraseLine(h);
 			compaction(h);
 
-			gameScore += 5;
+			tetris.SCORE += 5;
+			tetris.LEVEL += 1;
+
 		}
 	}
 }
 void showGuide() {
 	mvprintw(23, 0, "e: 時計回り");
 	mvprintw(23, 14, "w: 反時計回り");
-
-//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
 	mvprintw(23, 28, "s: ストック");
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 	mvprintw(24, 0, "←: 左に移動");
 	mvprintw(24, 14, "→: 右に移動");
 	mvprintw(24, 28, "↓: 下に移動");
-	mvprintw(25, 0, "q: ゲーム終了");
+	mvprintw(25, 0, "p: ゲーム終了");
 }
 
-void showScore() {
-	mvprintw(1, FIELD_WIDTH + 1, "SCORE: %d", gameScore);
+void showRecord() {
+	mvprintw(1, FIELD_WIDTH + 1, "SCORE: %d", tetris.SCORE);
+	mvprintw(2, FIELD_WIDTH + 1, "LEVEL: %d", tetris.LEVEL);
 }
 
 void initializeColor() {
-	start_color();
 	init_pair(BOUNDARY, COLOR_WHITE, COLOR_WHITE);
 	init_pair(BLOCK_COLOR1, COLOR_CYAN, COLOR_CYAN);
 	init_pair(BLOCK_COLOR2, COLOR_GREEN, COLOR_GREEN);
 	init_pair(BLOCK_COLOR3, COLOR_YELLOW, COLOR_YELLOW);
 	init_pair(BLOCK_COLOR4, COLOR_MAGENTA, COLOR_MAGENTA);
 	init_pair(BLOCK_COLOR5, COLOR_RED, COLOR_RED);
+	init_pair(MOZI1, COLOR_YELLOW, COLOR_BLACK);
+	init_pair(MOZI2, COLOR_CYAN, COLOR_BLACK);
 }
 
 
@@ -495,6 +274,7 @@ void showGameOverScreen() {
 	getch();
 }
 
+
 void gameLoop() {
 	int ch = 0;
 	
@@ -502,29 +282,29 @@ void gameLoop() {
 		clock_t baseTime = time(NULL);
 
 		while (1) {
-			setField(currentBlockPositionX, currentBlockPositionY, inControlBlock);
-
+			setBlock(currentBlockPositionX, currentBlockPositionY, inControlBlock);
 			drawField();
-
-
-//**********************************追加*************************************
+			
 			drawNextBlockField();
-//***************************************************************************
 
-//++++++++++++++++++++++++++++++++++追加+++++++++++++++++++++++++++++++++++++
 			drawStockBlockField();
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 			ch = getch();
 
-			unsetField(currentBlockPositionX, currentBlockPositionY, inControlBlock);
+			unsetBlock(currentBlockPositionX, currentBlockPositionY, inControlBlock);
 
-			playerOperate(ch);
+			play(ch);
 
 			clock_t currentTime = time(NULL);
 			double diff = difftime(currentTime, baseTime);
-			if (diff >= FALL_TIME) {
-				break;
+			if (tetris.LEVEL < 10) {
+				if (diff >= FALL_TIME - (tetris.LEVEL * 0.1)) {
+					break;
+				}
+			}
+			else if (tetris.LEVEL >= 10) {
+				if (diff >= FALL_TIME - 0.9) {
+					break;
+				}
 			}
 		}
 
@@ -534,20 +314,30 @@ void gameLoop() {
 			fixBlock();
 			eraseCompleteLine();
 			generateBlock(FALL_BASE_X, FALL_BASE_Y);
-//**********************************追加*************************************
 			unsetNextField(nextControlBlock);
 			setNextField(nextControlBlock);
-//***************************************************************************
+
 			if (isCollision(FALL_BASE_X, FALL_BASE_Y, inControlBlock)) {
 				currentAppState = GAME_OVER;
 			}
 		}
-		showScore();
+		showRecord();
 		showGuide();
 	}
 
 	if (currentAppState == GAME_OVER) {
-		showGameOverScreen();
+		clear();
+		Finishdraw();
+		errno_t error;
+		error = fopen_s(&fp, "kadai.txt", "w");
+		if (error != 0) {
+			fprintf_s(stderr, "failed to open");
+		}
+		else {
+			fprintf(fp, "%s%s\n", "自分のスコア ","到達レベル");
+			fprintf(fp, "%d%s%d\n",tetris.SCORE,"　　　　　　",tetris.LEVEL);
+			fclose(fp);
+		}
 	}
 }
 

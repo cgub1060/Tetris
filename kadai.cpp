@@ -35,9 +35,6 @@ int playField[FIELD_HEIGHT][FIELD_WIDTH] = {
 	{ 2,2,2,2,2,2,2,2,2,2,2,2 }
 };
 
-
-//++++++++++++++++++++++++++++++++++•ÏX+++++++++++++++++++++++++++++++++++++
-//**********************************’Ç‰Á*************************************
 int nextBlockField[SUB_FIELD_HEIGHT][SUB_FIELD_WIDTH] = {
 	{ 0,2,2,2,2,0 },
 	{ 1,0,0,0,0,1 },
@@ -46,9 +43,7 @@ int nextBlockField[SUB_FIELD_HEIGHT][SUB_FIELD_WIDTH] = {
 	{ 1,0,0,0,0,1 },
 	{ 0,2,2,2,2,0 }
 };
-//***************************************************************************
 
-//++++++++++++++++++++++++++++++++++’Ç‰Á+++++++++++++++++++++++++++++++++++++
 int stockBlockField[SUB_FIELD_HEIGHT][SUB_FIELD_WIDTH] = {
 	{ 0,2,2,2,2,0 },
 	{ 1,0,0,0,0,1 },
@@ -57,7 +52,6 @@ int stockBlockField[SUB_FIELD_HEIGHT][SUB_FIELD_WIDTH] = {
 	{ 1,0,0,0,0,1 },
 	{ 0,2,2,2,2,0 }
 };
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 int blocks[BLOCK_KINDS][BLOCK_HEIGHT][BLOCK_WIDTH] = {
 	{
@@ -105,21 +99,17 @@ int blocks[BLOCK_KINDS][BLOCK_HEIGHT][BLOCK_WIDTH] = {
 };
 
 int inControlBlock[BLOCK_HEIGHT][BLOCK_WIDTH];
-
-//**********************************’Ç‰Á*************************************
 int nextControlBlock[BLOCK_HEIGHT][BLOCK_WIDTH];
-//***************************************************************************
-
-//++++++++++++++++++++++++++++++++++’Ç‰Á+++++++++++++++++++++++++++++++++++++
 int stockControlBlock[BLOCK_HEIGHT][BLOCK_WIDTH];
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-int currentBlockPositionX = 0;
-int currentBlockPositionY = 0;
+int currentBlockPositionX;
+int currentBlockPositionY;
 
-int gameScore = 0;
+record tetris;
+
 int currentAppState = RUNNING;
 
+FILE *fp;
 
 int main()
 {
@@ -128,11 +118,14 @@ int main()
 	cbreak();
 	keypad(stdscr, TRUE);
 	timeout(KEYINPUT_TIMEOUT_TIME);
-	initializeColor();
 	srand((unsigned)time(NULL));
+	start_color();
+	initializeColor();
+	Startdraw();
+	clear();
 	generateBlock(FALL_BASE_X, FALL_BASE_Y);
-	setNextField(nextControlBlock);
 	gameLoop();
+
 	endwin();
 
 
